@@ -30,10 +30,10 @@ int main(int argc, char *argv[]){
 				
 				while(!valido){	//Menu 2
 					
-					cout << "2) 2" << endl;
-					cout << "3) 4" << endl;
-					cout << "4) 6" << endl;
-					cout << "5) 8" << endl;
+					cout << "1) 2" << endl;
+					cout << "2) 4" << endl;
+					cout << "3) 6" << endl;
+					cout << "4) 8" << endl;
 					cin >> o;
 					
 					
