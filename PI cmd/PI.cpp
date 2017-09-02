@@ -46,28 +46,28 @@ int main(int argc, char *argv[]){
 							
 						case 1:	//Opcion "2"
 						
-							cout << fixed << setprecision(2) << calcular(293, 2) << endl;	//Calular e imprimir 2 digito de PI
+							cout << fixed << setprecision(2) << calcular(293, 2) << endl << endl;	//Calular e imprimir 2 digito de PI
 							
 							valido = true;	//Salir del menu 2
 							break;
 							
 						case 2:	//Opcion "4"
 							
-							cout << fixed << setprecision(4) << calcular(17375, 4) << endl;	//Calular e imprimir 4 digito de PI
+							cout << fixed << setprecision(4) << calcular(17375, 4) << endl << endl;	//Calular e imprimir 4 digito de PI
 							
 							valido = true;	//Salir del menu 2
 							break;
 							
 						case 3:	//Opcion "6"
 							
-							cout << fixed << setprecision(6) << calcular(20000004, 6) << endl;	//Calular e imprimir 6 digito de PI
+							cout << fixed << setprecision(6) << calcular(20000004, 6) << endl << endl;	//Calular e imprimir 6 digito de PI
 							
 							valido = true;	//Salir del menu 
 							break;
 							
 						case 4:	//Opcion "8"
 							
-							cout << fixed << setprecision(8) << calcular(117000001, 8) << endl;	//Calular e imprimir 8 digito de PI
+							cout << fixed << setprecision(8) << calcular(117000001, 8) << endl << endl;	//Calular e imprimir 8 digito de PI
 							
 							valido = true;	//Salir del menu 
 							break;
@@ -85,7 +85,8 @@ int main(int argc, char *argv[]){
 				
 			case 2:
 				
-				
+				leer();
+				cout << endl;
 				
 				break;
 				
@@ -126,22 +127,22 @@ double calcular(int sumatoria, int digitos){
 	
 	if(tiempo < 0.001){
 		
-		cout << tiempo * 1000000 << " microsegundos a " << digitos << " digitos" << endl;
-		escribir(digitos, "µs", tiempo * 1000000, PI * 4);
+		cout << endl << tiempo * 1000000 << " microsegundos a " << digitos << " digitos" << endl;
+		escribir(digitos, "us", tiempo * 1000000, PI * 4);
 		
 	}else if(tiempo < 1){
 		
-		cout << tiempo * 1000 << " milisegundos a " << digitos << " digitos" << endl;	//Imprime el tiempo de ejecucion en milisegundos
+		cout << endl << tiempo * 1000 << " milisegundos a " << digitos << " digitos" << endl;	//Imprime el tiempo de ejecucion en milisegundos
 		escribir(digitos, "ms", tiempo * 1000, PI * 4);
 		
 	}else if(tiempo < 60){
 	
-		cout << tiempo << " segundos a " << digitos << " digitos" << endl;	//Imprime el tiempo de ejecucion en segundos
+		cout << endl << tiempo << " segundos a " << digitos << " digitos" << endl;	//Imprime el tiempo de ejecucion en segundos
 		escribir(digitos, "s", tiempo, PI * 4);
 	
 	}else if(tiempo > 60){
 		
-		cout << tiempo / 60 << " minutos a " << digitos << " digitos" << endl;	//Imprime el tiempo de ejecucion en minutos
+		cout << endl << tiempo / 60 << " minutos a " << digitos << " digitos" << endl;	//Imprime el tiempo de ejecucion en minutos
 		escribir(digitos, "min", tiempo / 60, PI * 4);
 		
 	}	
@@ -165,7 +166,7 @@ void escribir(int digitos, string duracion, double tiempo, double resultado){	//
 	
 	f.open("output.txt", fstream::in | fstream::out | fstream::ate);
 	
-	f << digitos << " DIGITOS" << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << duracion << endl << "Resultado: " << resultado << endl;
+	f << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << duracion << endl << "Resultado: " << resultado << endl;
 	
 	f.close();
 	
@@ -178,8 +179,8 @@ void leer(){
 	
 	while(!fe.eof()){
 		
-		fe >> cadena;
 		cout << cadena << endl;
+		fe >> cadena;
 		
 	}
 	
