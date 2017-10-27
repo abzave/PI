@@ -1,6 +1,6 @@
 #include <fstream>
 #include <string>
-#include "Calculo.cpp"
+#include "Calculo.h"
 
 using namespace std;
 
