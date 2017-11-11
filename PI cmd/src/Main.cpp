@@ -9,10 +9,10 @@ void leer();	//Lee el fichero
 
 int main(int argc, char *argv[]){
 
-	int o = 0;	//Opciones
-	int cod = NULL;
-	bool valido = false;
-	Calculo calc;   //Instancia de calculo
+	int opciones = 0;	//Opciones
+	int codigo = NULL;  //Codigo de duracion
+	bool valido = false;    //Validacion de entrada
+	Calculo calculador;   //Instancia de calculo
 
 	cout << "Ingrese una opcion" << endl;
 
@@ -21,14 +21,16 @@ int main(int argc, char *argv[]){
 		cout << "1) Calcular PI" << endl;
 		cout << "2) Ver resultados" << endl;
 		cout << "3) salir" << endl;
-		cin >> o;
+		cin >> opciones;    //Obtiene el dato ingresado
 
-		switch(o){	//Validacion de opciones
+		switch(opciones){	//Validacion de opciones
 
 			case 1:	//Opcion "Calcular PI"
 
-				cout << endl << "Ingrese la cantidad de digitos a calcular" << endl;
-				valido = false;
+			    system("cls");  //Limpia la pantalla
+
+				cout << "Ingrese la cantidad de digitos a calcular" << endl;
+				valido = false; //Resetear valido
 
 				while(!valido){	//Menu 2
 
@@ -38,84 +40,89 @@ int main(int argc, char *argv[]){
 					cout << "4) 6" << endl;
 					cout << "5) 8" << endl;
 					cout << "6) 10" << endl;
-					cin >> o;
+					cin >> opciones;   //Obtiene el dato ingresado
 
 
-					switch(o){	//Validacion de opciones
+					switch(opciones){	//Validacion de opciones
 
-						case 1:
+					    /*Los datos del parametro "sumatoria" son el minimo para obtener un resultado correcto*/
 
-							cod = calc.calcular(19, 1);	//Calular e imprimir 2 digito de PI
-							escribir(1, cod, calc.getTiempo(), calc.getPI());
+						case 1: //opcion "1"
+
+							codigo = calculador.calcular(19, 1);	//Calular e imprimir 2 digito de PI
+							escribir(1, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
 
 							valido = true;
 							break;
 
 						case 2:	//Opcion "2"
 
-							cod = calc.calcular(293, 2);	//Calular e imprimir 2 digito de PI
-							escribir(2, cod, calc.getTiempo(), calc.getPI());
+							codigo = calculador.calcular(293, 2);	//Calular e imprimir 2 digito de PI
+							escribir(2, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
 
 							valido = true;	//Salir del menu 2
 							break;
 
 						case 3:	//Opcion "4"
 
-							cod = calc.calcular(17375, 4);	//Calular e imprimir 4 digito de PI
-							escribir(4, cod, calc.getTiempo(), calc.getPI());
+							codigo = calculador.calcular(17375, 4);	//Calular e imprimir 4 digito de PI
+							escribir(4, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
 
 							valido = true;	//Salir del menu 2
 							break;
 
 						case 4:	//Opcion "6"
 
-							cod = calc.calcular(20000004, 6);	//Calular e imprimir 6 digito de PI
-							escribir(6, cod, calc.getTiempo(), calc.getPI());
+							codigo = calculador.calcular(20000004, 6);	//Calular e imprimir 6 digito de PI
+							escribir(6, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
 
 							valido = true;	//Salir del menu
 							break;
 
 						case 5:	//Opcion "8"
 
-							cod = calc.calcular(117000001, 8);	//Calular e imprimir 8 digito de PI
-							escribir(8, cod, calc.getTiempo(), calc.getPI());
+							codigo = calculador.calcular(117000001, 8);	//Calular e imprimir 8 digito de PI
+							escribir(8, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
 
 							valido = true;	//Salir del menu
 							break;
 
 						case 6:
 
-							cod = calc.calcular(16343000102LL, 10);	//Calular e imprimir 10 digito de PI
-							escribir(10, cod, calc.getTiempo(), calc.getPI());
+							codigo = calculador.calcular(16343000102LL, 10);	//Calular e imprimir 10 digito de PI
+							escribir(10, codigo, calculador.getTiempo(), calculador.getPI());  //Almacena los resultados en "output.txt"
 
 							valido = true;	//Salir del menu
 							break;
 
 						default:	//Opcion no valida
 
+                            system("cls");  //Limpia la pantalla
 							cout << "Selecione una opcion valida" << endl;	//Mensaje de error
 
 					}
 
 				}
 
-				o = 0;	//Resetear opciones
+				opciones = 0;	//Resetear opciones
 				break;
 
-			case 2:
+			case 2: //Opcion "Ver resultados"
 
-				leer();
-				cout << endl;
+			    system("cls");  //Limpia la pantalla
+				leer(); //Lee los datos de "output.txt"
+				cout << endl;   //Separa la informacion
 
 				break;
 
 			case 3:	//Opcion "Salir"
 
-				exit(0);
+				exit(0);    //Salir
 				break;
 
 			default:	//Opcion no valida
 
+                system("cls");  //Limpia la pantalla
 				cout << "Selecione una opcion valida" << endl;	//Mensaje de error
 
 		}
@@ -126,66 +133,65 @@ int main(int argc, char *argv[]){
 
 }
 
-void escribir(int digitos, int cod, double tiempo, double resultado){
+void escribir(int digitos, int codigo, double tiempo, double resultado){
 
-	ofstream f;
+	ofstream fichero;   //Instancia fichero
 
-	f.open("output.txt", fstream::in | fstream::app);	//fstream::ate para agregar al final del fichero
+	fichero.open("output.txt", fstream::in | fstream::app);	//Abre o crea el fichero    fstream::ate para agregar al final del fichero
 
-	switch(cod){
+	switch(codigo){
 
-        case 0:
+        case 0: //nanosegundos
 
-            f << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "ns" << endl << "Resultado: " << resultado << endl << endl;	//Mensaje que se almacen
+            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "ns" << endl << "Resultado: " << resultado << endl << endl;	//Mensaje que se almacena
             break;
 
-        case 1:
+        case 1: //microsegundos
 
-            f << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "us" << endl << "Resultado: " << resultado << endl << endl;
+            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "us" << endl << "Resultado: " << resultado << endl << endl;    //Mensaje que se almacena
             break;
 
-        case 2:
+        case 2: //milisegundos
 
-            f << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "ms" << endl << "Resultado: " << resultado << endl << endl;
+            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "ms" << endl << "Resultado: " << resultado << endl << endl;    //Mensaje que se almacena
             break;
 
-        case 3:
+        case 3: //segundos
 
-            f << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "s" << endl << "Resultado: " << resultado << endl << endl;
+            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "s" << endl << "Resultado: " << resultado << endl << endl; //Mensaje que se almacena
             break;
 
-        case 4:
+        case 4: //minutos
 
-            f << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "min" << endl << "Resultado: " << resultado << endl << endl;
+            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "min" << endl << "Resultado: " << resultado << endl << endl;   //Mensaje que se almacena
             break;
 
-        case 5:
+        case 5: //horas
 
-            f << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "h" << endl << "Resultado: " << resultado << endl << endl;
+            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "h" << endl << "Resultado: " << resultado << endl << endl; //Mensaje que se almacena
             break;
 
         default:
 
-            f << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "Sin especificar unidad" << endl << "Resultado: " << resultado << endl << endl;
+            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "Sin especificar unidad" << endl << "Resultado: " << resultado << endl << endl;    //Mensaje que se almacena
 
     }
 
-	f.close();
+	fichero.close();    //Cierra el fichero
 
 }
 
 void leer(){
 
-	ifstream fe ("output.txt");
+	ifstream fichero ("output.txt");    //Abre el fichero
 	string cadena;	//Almacena el texto del fichero
 
-	while(!fe.eof()){	//Lee hasta que termine el fichero
+	while(getline(fichero, cadena)){    //Guarda en "cadena" los datos del fichero
 
-		cout << cadena << endl;
-		fe >> cadena;
+        cout << cadena << endl; //Imprime el contenido del fichero
 
 	}
 
-	fe.close();
+	fichero.close(); //Cierra el fichero
 
 }

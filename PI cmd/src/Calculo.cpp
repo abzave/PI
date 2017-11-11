@@ -2,81 +2,99 @@
 
 using namespace std;
 
-Calculo::Calculo(){
+Calculo::Calculo(){ //Constructor
 
     tiempo = 0; //Inicializa "tiempo"
     porcentaje = 0; //Inicializa "porcentaje"
     PI = 0; //Inicializa "PI"
 
 }
-double Calculo::performanceCounter(LARGE_INTEGER *ini, LARGE_INTEGER *fin){
+double Calculo::performanceCounter(LARGE_INTEGER *inicio, LARGE_INTEGER *fin){ //Calcula el tiempo de ejecucion
 
-    LARGE_INTEGER freq; //Almacena la frecuencia del procesador
-    QueryPerformanceFrequency(&freq);   //Obtiene la frequencia del procesador
+    LARGE_INTEGER frecuencia; //Almacena la frecuencia del procesador
+    QueryPerformanceFrequency(&frecuencia);   //Obtiene la frequencia del procesador
 
-    return (double)(fin -> QuadPart - ini -> QuadPart) / (double)freq.QuadPart; //Realiza el calculo del tiempo de ejecucion y lo devuelve
+    return (double)(fin -> QuadPart - inicio -> QuadPart) / (double)frecuencia.QuadPart; //Realiza el calculo del tiempo de ejecucion y lo devuelve
 
 }
-int Calculo::calcular(long long int sumatoria, int digitos){
+int Calculo::calcular(long long int sumatoria, int digitos){    //Calcula PI en mononucleo
 
-    int count = 1;  //Contador de minutos transcurridos
+    int segundos = 1;  //Contador de segundos transcurridos
     PI = 0; //Cambia el valor de PI
-    QueryPerformanceCounter(&ini);  //Marca el inicio de la ejecucion
+    QueryPerformanceCounter(&inicio);  //Marca el inicio de la ejecucion
+
+    system("cls");
 
     for(long long int i = 0; i <= sumatoria; i++){
 
         PI = PI + (pow(-1, i) / (2 * i + 1));   //Formula de Leibniz
 
         QueryPerformanceCounter(&fin);  //Marcador para calcular el tiempo transcurrido
-        if(performanceCounter(&ini, &fin) == 60 * count){
+        if(performanceCounter(&inicio, &fin) == 1 * segundos){    //Comprueba que haya pasado medio minuto
 
             porcentaje = ((double)i / (double)sumatoria) * 100; //Calcula el porcentaje de ejecucion
+
+            system("cls");  //Limpia la pantalla
             cout << fixed << setprecision(1) << porcentaje << "%" << endl;  //Imprime el porcentaje
-            count++;
+
+            for(int i = 10; i < porcentaje; i += 10){   //Aumenta la barra cada 10%
+
+                printf("%c", 219);  //Imprime el caracter ascii 219 como barra de progreso
+
+            }
+
+            segundos++;
 
         }
 
     }
 
     QueryPerformanceCounter(&fin);  //Marca el final de la ejecucion
-    tiempo = performanceCounter(&ini, &fin);    //Calcula el total del tiempo de ejecucion
+    tiempo = performanceCounter(&inicio, &fin);    //Calcula el total del tiempo de ejecucion
+
+    system("cls");  //Limpia la pantalla
 
     cout << fixed << setprecision(digitos) << endl << PI * 4 << endl;   //Imprime el resultado del calculo
 
-    if(tiempo < 0.000001){
+    return duracion(digitos);   //Regresa el codigo de duracion
+
+}
+int Calculo::duracion(int digitos){
+
+    if(tiempo < 0.000001){  //nanosegundos
 
         tiempo = tiempo * 1000000000;   //Pasa el tiempo a una unidad menor y lo almacena
 
         cout << fixed << setprecision(2) << tiempo << " nanosegundos a " << digitos << " digitos" << endl << endl;  //Imprime el tiempo
         return 0;   //Codigo para especificar unidad de tiempo
 
-    }else if(tiempo < 0.001){
+    }else if(tiempo < 0.001){   //microsegundos
 
         tiempo = tiempo * 1000000;  //Pasa el tiempo a una unidad menor y lo almacena
 
         cout << fixed << setprecision(2) << tiempo << " microsegundos a " << digitos << " digitos" << endl << endl; //Imprime el tiempo
         return 1;   //Codigo para especificar unidad de tiempo
 
-    }else if(tiempo < 1){
+    }else if(tiempo < 1){   //milisegundos
 
         tiempo = tiempo * 1000; //Pasa el tiempo a una unidad menor y lo almacena
 
         cout << fixed << setprecision(2) << tiempo << " milisegundos a " << digitos << " digitos" << endl << endl;  //Imprime el tiempo
         return 2;   //Codigo para especificar unidad de tiempo
 
-    }else if(tiempo < 60){
+    }else if(tiempo < 60){  //segundos
 
         cout << fixed << setprecision(2) << tiempo << " segundos a " << digitos << " digitos" << endl << endl;  //Imprime el tiempo
         return 3;   //Codigo para especificar unidad de tiempo
 
-    }else if(tiempo > 60 && tiempo < 3600){
+    }else if(tiempo > 60 && tiempo < 3600){ //minutos
 
         tiempo = tiempo / 60;   //Pasa el tiempo a una unidad mayor y lo almacena
 
         cout << fixed << setprecision(2) << tiempo << " minutos a " << digitos << " digitos" << endl << endl;   //Imprime el tiempo
         return 4;   //Codigo para especificar unidad de tiempo
 
-    }else if(tiempo > 3600){
+    }else if(tiempo > 3600){    //horas
 
         tiempo = tiempo / 3600; //Pasa el tiempo a una unidad mayor y lo almacena
 
@@ -86,12 +104,12 @@ int Calculo::calcular(long long int sumatoria, int digitos){
     }
 
 }
-double Calculo::getPI(){
+double Calculo::getPI(){    //Getter de "PI"
 
     return PI * 4;
 
 }
-double Calculo::getTiempo(){
+double Calculo::getTiempo(){    //Getter de "tiempo"
 
     return tiempo;
 

@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <thread>
 #include <vector>
+#include <stdio.h>
 
     class Calculo{
         public:
@@ -17,9 +18,10 @@
 
         private:
 
+            int duracion(int);
             double performanceCounter(LARGE_INTEGER*, LARGE_INTEGER*);   //Calcula el tiempo de ejecucion
             double PI, tiempo, porcentaje;  //"PI" almacena PI    "tiempo" almacena el tiempo de ejecucion  "porcentaje" almacena el progreso del calculo
-            LARGE_INTEGER ini, fin; //Marcadores de tiempo de ejecucion
+            LARGE_INTEGER inicio, fin; //Marcadores de tiempo de ejecucion
 
     };
 
