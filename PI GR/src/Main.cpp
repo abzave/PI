@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "Calculo.h"
-#define CB_DIGITOS  100
+#define CB_DIGITOS  100 //COMBOX con las opciones de los digitos
+#define BTN_SALIR   101 //Boton de salir
 
 using namespace std;
 
@@ -39,6 +40,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 			}
 
 			break;
+
+            case WM_SIZE:   //Cambio de dimensiones de la ventana
+
+                RECT rect;  //Almacena coordenadas del control
+                int ancho;  //Ancho del control
+                int largo;  //Largo del control
+
+                GetWindowRect(GetDlgItem(hWnd, BTN_SALIR), &rect);  //Obtiene las coordenadas absolutas despues de la redimension
+                ancho = rect.right - rect.left; //Calcula el ancho
+                largo = rect.bottom - rect.top; //Calcula el largo
+
+                GetClientRect(hWnd, &rect); //Obtiene las coordenadas relativas despues de la redimension
+                MoveWindow(GetDlgItem(hWnd, BTN_SALIR), rect.right - ancho - 8, rect.bottom - largo - 8, ancho, largo, TRUE);   //Mueve el control
+
+            break;
 
 		case WM_DESTROY:	//Cierre de una ventana
 
@@ -89,7 +105,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	ventana = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 640, 480, NULL, NULL, hInstance, NULL); //Crea la ventana
 	calc = CreateWindow("BUTTON", "Calcular PI", WS_CHILD | WS_VISIBLE, 10, 10, 100, 20, ventana, NULL, hInstance, NULL);   //Crea el boton "Calcular PI"
-	sal = CreateWindow("BUTTON", "Salir", WS_CHILD | WS_VISIBLE, 520, 410, 90, 20, ventana, NULL, hInstance, NULL); //Crea el boton "Salir"
+	sal = CreateWindow("BUTTON", "Salir", WS_CHILD | WS_VISIBLE, 520, 410, 90, 20, ventana, (HMENU)BTN_SALIR, hInstance, NULL); //Crea el boton "Salir"
 	label = CreateWindow("STATIC", "Digitos", WS_CHILD | WS_VISIBLE, 60, 45, 45, 30, ventana, NULL, hInstance, NULL);   //Crea el texto "Digitos"
 	cb = CreateWindow("COMBOBOX", "", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE, 10, 40, 50, 150, ventana, (HMENU)CB_DIGITOS, hInstance, NULL);  //Crea el menú desplegable
 
