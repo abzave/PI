@@ -1,4 +1,5 @@
 #include "Calculo.h"
+#include "Tiempo.h"
 
 using namespace std;
 
@@ -9,28 +10,22 @@ Calculo::Calculo(){ //Constructor
     PI = 0; //Inicializa "PI"
 
 }
-double Calculo::performanceCounter(LARGE_INTEGER *inicio, LARGE_INTEGER *fin){ //Calcula el tiempo de ejecucion
-
-    LARGE_INTEGER frecuencia; //Almacena la frecuencia del procesador
-    QueryPerformanceFrequency(&frecuencia);   //Obtiene la frequencia del procesador
-
-    return (double)(fin -> QuadPart - inicio -> QuadPart) / (double)frecuencia.QuadPart; //Realiza el calculo del tiempo de ejecucion y lo devuelve
-
-}
 int Calculo::calcular(long long int sumatoria, int digitos){    //Calcula PI en mononucleo
 
     int segundos = 1;  //Contador de segundos transcurridos
     PI = 0; //Cambia el valor de PI
-    QueryPerformanceCounter(&inicio);  //Marca el inicio de la ejecucion
+    Tiempo temporizador;
 
     system("cls");
+
+    temporizador.iniciar(); //Marca el inicio de la ejecucion
 
     for(long long int i = 0; i <= sumatoria; i++){
 
         PI = PI + (pow(-1, i) / (2 * i + 1));   //Formula de Leibniz
 
-        QueryPerformanceCounter(&fin);  //Marcador para calcular el tiempo transcurrido
-        if(performanceCounter(&inicio, &fin) == 1 * segundos){    //Comprueba que haya pasado medio minuto
+        temporizador.finalizar();   //Marcador para calcular el tiempo transcurrido
+        if(temporizador.duracion() == 1 * segundos){    //Comprueba que haya pasado medio minuto
 
             porcentaje = ((double)i / (double)sumatoria) * 100; //Calcula el porcentaje de ejecucion
 
@@ -49,8 +44,8 @@ int Calculo::calcular(long long int sumatoria, int digitos){    //Calcula PI en 
 
     }
 
-    QueryPerformanceCounter(&fin);  //Marca el final de la ejecucion
-    tiempo = performanceCounter(&inicio, &fin);    //Calcula el total del tiempo de ejecucion
+    temporizador.finalizar();  //Marca el final de la ejecucion
+    tiempo = temporizador.duracion();    //Calcula el total del tiempo de ejecucion
 
     system("cls");  //Limpia la pantalla
 
