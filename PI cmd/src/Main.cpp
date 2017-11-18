@@ -35,12 +35,12 @@ int main(int argc, char *argv[]){
 
 				while(!valido){	//Menu 2
 
-					cout << "1) 1" << endl;
-					cout << "2) 2" << endl;
-					cout << "3) 4" << endl;
-					cout << "4) 6" << endl;
-					cout << "5) 8" << endl;
-					cout << "6) 10" << endl;
+					cout << "1) 1 digito" << endl;
+					cout << "2) 2 digitos" << endl;
+					cout << "3) 4 digitos" << endl;
+					cout << "4) 6 digitos" << endl;
+					cout << "5) 8 digitos" << endl;
+					cout << "6) 10 digitos" << endl;
 					cin >> opciones;   //Obtiene el dato ingresado
 
 
