@@ -2,22 +2,28 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "Calculo.h"
-#define CB_DIGITOS  100 //COMBOX con las opciones de los digitos
-#define BTN_SALIR   101 //Boton de salir
+#include "Recursos.h"
 
 using namespace std;
 
-LPCSTR szWindowClass = "PI";	//Nombre de la aplicacion
+LPCSTR szWindowClass = "Clase";	//Nombre de la aplicacion
 LPCSTR szTitle = "PI";	//Nombre de la barra de titulo
-HWND ventana, calc, sal, label, cb;	//Elementos
+HWND ventana, calc, sal, ver, label, label2, cb;	//Elementos
 
 void* tarea(void*); //Funcion que inicia el calculo
+void mostrar(HWND, Calculo::RESULTADOS*);    //Lee "output.txt"
+BOOL CALLBACK DlgResultadosProc(HWND, UINT, WPARAM, LPARAM);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//Proceso de mensajes
 
+    static HINSTANCE instancia;
     pthread_t hilo; //Hilo para ejecucion en segundo plano
 
 	switch (msj) {
+
+        case WM_CREATE:
+
+            instancia = ((LPCREATESTRUCT)lParam) -> hInstance;
 
 		case WM_COMMAND:	//Click
 
@@ -31,6 +37,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
                     PostQuitMessage(3); //Cierre del la aplicacion
 
 				}
+
+			}
+			if((HWND)lParam == ver){
+
+                DialogBox(instancia, "DlgResultados", ventana, DlgResultadosProc);
 
 			}
 			if((HWND)lParam == sal){	//Boton "Salir"
@@ -47,12 +58,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
                 int ancho;  //Ancho del control
                 int largo;  //Largo del control
 
-                GetWindowRect(GetDlgItem(hWnd, BTN_SALIR), &rect);  //Obtiene las coordenadas absolutas despues de la redimension
+                GetWindowRect(GetDlgItem(hWnd, ID_SALIR), &rect);  //Obtiene las coordenadas absolutas despues de la redimension
                 ancho = rect.right - rect.left; //Calcula el ancho
                 largo = rect.bottom - rect.top; //Calcula el largo
 
                 GetClientRect(hWnd, &rect); //Obtiene las coordenadas relativas despues de la redimension
-                MoveWindow(GetDlgItem(hWnd, BTN_SALIR), rect.right - ancho - 8, rect.bottom - largo - 8, ancho, largo, TRUE);   //Mueve el control
+                MoveWindow(GetDlgItem(hWnd, ID_SALIR), rect.right - ancho - 8, rect.bottom - largo - 8, ancho, largo, TRUE);   //Mueve el control
 
             break;
 
@@ -105,7 +116,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	ventana = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 640, 480, NULL, NULL, hInstance, NULL); //Crea la ventana
 	calc = CreateWindow("BUTTON", "Calcular PI", WS_CHILD | WS_VISIBLE, 10, 10, 100, 20, ventana, NULL, hInstance, NULL);   //Crea el boton "Calcular PI"
-	sal = CreateWindow("BUTTON", "Salir", WS_CHILD | WS_VISIBLE, 520, 410, 90, 20, ventana, (HMENU)BTN_SALIR, hInstance, NULL); //Crea el boton "Salir"
+	ver = CreateWindow("BUTTON", "Ver resultados", WS_CHILD | WS_VISIBLE, 120, 10, 120, 20, ventana, NULL, hInstance, NULL);
+	sal = CreateWindow("BUTTON", "Salir", WS_CHILD | WS_VISIBLE, 520, 410, 90, 20, ventana, (HMENU)ID_SALIR, hInstance, NULL); //Crea el boton "Salir"
 	label = CreateWindow("STATIC", "Digitos", WS_CHILD | WS_VISIBLE, 60, 45, 45, 30, ventana, NULL, hInstance, NULL);   //Crea el texto "Digitos"
 	cb = CreateWindow("COMBOBOX", "", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE, 10, 40, 50, 150, ventana, (HMENU)CB_DIGITOS, hInstance, NULL);  //Crea el menú desplegable
 
@@ -138,7 +150,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	return (int)msj.wParam;	//Estatus de salida
 
 }
-
 void* tarea(void* indice){
 
     Calculo calcu;  //Instancia de Calculo
@@ -177,7 +188,164 @@ void* tarea(void* indice){
             calcu.calcular(16343000102LL, 10);    //Calcula 10 digitos de PI
             break;
 
-        }
+    }
+
+}
+void mostrar(HWND ventana, Calculo::RESULTADOS* r){
+
+    char buffer[20];
+
+    SetDlgItemInt(ventana, EDT_DIGITOS, r -> digitos, TRUE);
+
+    memset(buffer, '\0', 20);
+    sprintf(buffer, "%0.1f", r -> tiempo);
+    SetDlgItemText(ventana, EDT_DURACION, buffer);
+
+    switch(r -> digitos){
+
+        case 1:
+
+            memset(buffer, '\0', 20);
+            sprintf(buffer, "%0.1f", r -> PI);
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+
+            break;
+
+        case 2:
+
+            memset(buffer, '\0', 20);
+            sprintf(buffer, "%0.2f", r -> PI);
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+
+            break;
+
+        case 4:
+
+            memset(buffer, '\0', 20);
+            sprintf(buffer, "%0.4f", r -> PI);
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+
+            break;
+
+        case 6:
+
+            memset(buffer, '\0', 20);
+            sprintf(buffer, "%0.6f", r -> PI);
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+
+            break;
+
+        case 8:
+
+            memset(buffer, '\0', 20);
+            sprintf(buffer, "%0.8f", r -> PI);
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+
+            break;
+
+        case 10:
+
+            memset(buffer, '\0', 20);
+            sprintf(buffer, "%0.10f", r -> PI);
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+
+            break;
+
+    }
+
+}
+BOOL CALLBACK DlgResultadosProc(HWND ventana, UINT msj, WPARAM wParam, LPARAM lParam){
+
+    static FILE* ficheroSalida;
+    static int pos = 0;
+    static int resultados = 0;
+    Calculo::RESULTADOS r;
+
+    switch(msj){
+
+        case WM_INITDIALOG:
+
+            if(!(ficheroSalida = fopen("output.rst", "rb"))){
+
+                MessageBox(ventana, "Error al abrir el archivo output.txt", "Error", MB_ICONERROR);
+                EndDialog(ventana, TRUE);
+
+            }
+
+            fseek(ficheroSalida, 0, SEEK_END);
+            resultados = (int)(ftell(ficheroSalida)/sizeof(Calculo::RESULTADOS));
+
+            rewind(ficheroSalida);
+            fread(&r, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);
+            mostrar(ventana, &r);
+
+            pos = 0;
+            EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), FALSE);
+            if(resultados == 1){
+
+                EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), FALSE);
+
+            }
+
+            break;
+
+
+        case WM_COMMAND:
+
+            switch(LOWORD(wParam)){
+
+                case ID_ANTERIOR:
+
+                    pos--;
+                    if(pos < 1){
+
+                        EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), FALSE);
+
+                    }
+                    EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), TRUE);
+
+                    rewind(ficheroSalida);
+                    fseek(ficheroSalida, pos * sizeof(Calculo::RESULTADOS), SEEK_SET);
+                    fread(&r, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);
+                    mostrar(ventana, &r);
+
+                    break;
+
+                case ID_SIGUIENTE:
+
+                    pos++;
+                    if(pos >= (resultados - 1)){
+
+                        EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), FALSE);
+
+                    }
+                    EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), TRUE);
+
+                    rewind(ficheroSalida);
+                    fseek(ficheroSalida, pos * sizeof(Calculo::RESULTADOS), SEEK_SET);
+                    fread(&r, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);
+                    mostrar(ventana, &r);
+
+                    break;
+
+                case IDOK:
+
+                    EndDialog(ventana, TRUE);
+                    break;
+
+            }
+
+            return TRUE;
+
+        case WM_CLOSE:
+
+            fclose(ficheroSalida);
+            EndDialog(ventana, TRUE);
+            return TRUE;
+
+    }
+
+    return FALSE;
 
 }
 
