@@ -11,7 +11,7 @@ void leer();	//Lee el fichero
 int main(int argc, char *argv[]){
 
 	int opciones = 0;	//Opciones
-	int codigo = NULL;  //Codigo de duracion
+	int codigo = -1;  //Codigo de duracion
 	bool valido = false;    //Validacion de entrada
 	Calculo calculador;   //Instancia de calculo
 
@@ -41,6 +41,7 @@ int main(int argc, char *argv[]){
 					cout << "4) 6 digitos" << endl;
 					cout << "5) 8 digitos" << endl;
 					cout << "6) 10 digitos" << endl;
+					cout << "7) Atras" << endl;
 					cin >> opciones;   //Obtiene el dato ingresado
 
 
@@ -95,6 +96,13 @@ int main(int argc, char *argv[]){
 
 							valido = true;	//Salir del menu
 							break;
+
+                        case 7:
+
+                            valido = true;
+                            system("cls");
+
+                            break;
 
 						default:	//Opcion no valida
 

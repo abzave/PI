@@ -25,7 +25,7 @@ int Calculo::calcular(long long int sumatoria, int digitos){    //Calcula PI en 
         PI = PI + (pow(-1, i) / (2 * i + 1));   //Formula de Leibniz
 
         temporizador.finalizar();   //Marcador para calcular el tiempo transcurrido
-        if(temporizador.duracion() == 1 * segundos){    //Comprueba que haya pasado medio minuto
+        if(temporizador.duracion() == 2 * segundos){    //Comprueba que haya pasado medio minuto
 
             porcentaje = ((double)i / (double)sumatoria) * 100; //Calcula el porcentaje de ejecucion
 
@@ -37,6 +37,8 @@ int Calculo::calcular(long long int sumatoria, int digitos){    //Calcula PI en 
                 printf("%c", 219);  //Imprime el caracter ascii 219 como barra de progreso
 
             }
+
+            cout << endl << "Esto puede llegar a durar un rato" << endl;    //Aviso
 
             segundos++;
 
