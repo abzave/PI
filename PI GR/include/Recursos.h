@@ -16,5 +16,8 @@
 #define EDT_DIGITOS     107
 #define EDT_DURACION    108
 #define EDT_RESULTADO   109
+#define EDT_TIEMPO      110
+
+#define PB_PROGRESO     111
 
 #endif // __RECURSOS_H_INCLUDED__

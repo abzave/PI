@@ -8,7 +8,7 @@ using namespace std;
 
 LPCSTR szWindowClass = "Clase";	//Nombre de la aplicacion
 LPCSTR szTitle = "PI";	//Nombre de la barra de titulo
-HWND ventana, calc, sal, ver, label, label2, cb;	//Elementos
+HWND ventana, calc, sal, ver, label, cb, pb;	//Elementos
 
 void* tarea(void*); //Funcion que inicia el calculo
 void mostrar(HWND, Calculo::RESULTADOS*);    //Lee "output.txt"
@@ -18,6 +18,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 
     static HINSTANCE instancia;
     pthread_t hilo; //Hilo para ejecucion en segundo plano
+    Calculo::RESULTADOS r;
 
 	switch (msj) {
 
@@ -31,12 +32,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 
 				int indice = SendDlgItemMessage(hWnd, CB_DIGITOS, CB_GETCURSEL, 0, 0);  //Opcion seleccionada en "cb"
 
-				if(pthread_create(&hilo, NULL, tarea, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
+                if(pthread_create(&hilo, NULL, tarea, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
 
                     MessageBox(hWnd, "Error al generar hilo de ejecucion", szTitle, MB_ICONERROR);  //Mensaje de error
                     PostQuitMessage(3); //Cierre del la aplicacion
 
-				}
+                }
 
 			}
 			if((HWND)lParam == ver){
@@ -120,6 +121,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	sal = CreateWindow("BUTTON", "Salir", WS_CHILD | WS_VISIBLE, 520, 410, 90, 20, ventana, (HMENU)ID_SALIR, hInstance, NULL); //Crea el boton "Salir"
 	label = CreateWindow("STATIC", "Digitos", WS_CHILD | WS_VISIBLE, 60, 45, 45, 30, ventana, NULL, hInstance, NULL);   //Crea el texto "Digitos"
 	cb = CreateWindow("COMBOBOX", "", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE, 10, 40, 50, 150, ventana, (HMENU)CB_DIGITOS, hInstance, NULL);  //Crea el menú desplegable
+	pb = CreateWindow(PROGRESS_CLASS, "", PBS_SMOOTH | WS_CHILD | WS_VISIBLE, 250, 10, 100, 20, ventana, (HMENU)PB_PROGRESO, hInstance, NULL);
 
 	for(int i = 0; i < items; i++){
 
@@ -160,32 +162,32 @@ void* tarea(void* indice){
 
         case 0: //1 digito
 
-            calcu.calcular(19, 1);    //Calcula 1 digito de PI
+            calcu.calcular(19, 1, pb);    //Calcula 1 digito de PI
             break;
 
         case 1: //2 digitos
 
-            calcu.calcular(293, 2);   //Calcula 2 digitos de PI
+            calcu.calcular(293, 2, pb);   //Calcula 2 digitos de PI
             break;
 
         case 2: //4 digitos
 
-            calcu.calcular(17375, 4); //Calcula 4 digitos de PI
+            calcu.calcular(17375, 4, pb); //Calcula 4 digitos de PI
             break;
 
         case 3: //6 digitos
 
-            calcu.calcular(20000004, 6);  //Calcula 6 digitos de PI
+            calcu.calcular(20000004, 6, pb);  //Calcula 6 digitos de PI
             break;
 
         case 4: //8 digitos
 
-            calcu.calcular(117000001, 8); //Calcula 8 digitos de PI
+            calcu.calcular(117000001, 8, pb); //Calcula 8 digitos de PI
             break;
 
         case 5: //10 digitos
 
-            calcu.calcular(16343000102LL, 10);    //Calcula 10 digitos de PI
+            calcu.calcular(16343000102LL, 10, pb);    //Calcula 10 digitos de PI
             break;
 
     }
@@ -248,6 +250,46 @@ void mostrar(HWND ventana, Calculo::RESULTADOS* r){
             memset(buffer, '\0', 20);
             sprintf(buffer, "%0.10f", r -> PI);
             SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+
+            break;
+
+    }
+
+    switch(r -> codigo){
+
+        case 1:
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "ns");
+
+            break;
+
+        case 2:
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "us");
+
+            break;
+
+        case 3:
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "ms");
+
+            break;
+
+        case 4:
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "s");
+
+            break;
+
+        case 5:
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "m");
+
+            break;
+
+        case 6:
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "h");
 
             break;
 

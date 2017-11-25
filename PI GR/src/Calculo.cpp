@@ -19,31 +19,27 @@ double Calculo::performanceCounter(LARGE_INTEGER *ini, LARGE_INTEGER *fin){ //Ca
     return (double)(fin -> QuadPart - ini -> QuadPart) / (double)freq.QuadPart; //Realiza el calculo del tiempo de ejecucion y lo devuelve
 
 }
-void Calculo::calcular(INT64 sumatoria, int digitos){    //Calcula PI en mononucleo
+void Calculo::calcular(INT64 sumatoria, int digitos, HWND barraProgreso){    //Calcula PI en mononucleo
 
-    int count = 1;  //Contador de minutos transcurridos
     PI = 0; //Cambia el valor de PI
-    QueryPerformanceCounter(&ini);  //Marca el inicio de la ejecucion
-    TCHAR r[32];    //Almacena los resultados en un string
+    LPCSTR r;    //Almacena los resultados en un string
     static RESULTADOS result;
+    stringstream sstr("");
 
+    QueryPerformanceCounter(&ini);  //Marca el inicio de la ejecucion
     for(long long int i = 0; i <= sumatoria; i++){
 
         PI = PI + (pow(-1, i) / (2 * i + 1));   //Formula de Leibniz
 
-        QueryPerformanceCounter(&fin);  //Marcador para calcular el tiempo transcurrido
-        if(performanceCounter(&ini, &fin) == 30 * count){
-
-            porcentaje = ((double)i / (double)sumatoria) * 100; //Calcula el porcentaje de ejecucion
-            cout << fixed << setprecision(1) << porcentaje << "%" << endl;  //Imprime el porcentaje
-            count++;
-
-        }
+        porcentaje = ((double)i / (double)sumatoria) * 100;
+        SendMessage(barraProgreso, PBM_SETPOS, (WPARAM)porcentaje, 0);
 
     }
 
     QueryPerformanceCounter(&fin);  //Marca el final de la ejecucion
     tiempo = performanceCounter(&ini, &fin);    //Calcula el total del tiempo de ejecucion
+
+    SendMessage(barraProgreso, PBM_SETPOS, (WPARAM)0, 0);
 
     if(tiempo < 0.000001){  //nanosegundo
 
@@ -52,42 +48,10 @@ void Calculo::calcular(INT64 sumatoria, int digitos){    //Calcula PI en mononuc
         result.digitos = digitos;
         result.PI = PI * 4;
         result.tiempo = tiempo;
+        result.codigo = 1;
 
-        switch(digitos){
-
-            case 1: //1 digito
-
-                sprintf(r, "Resultado: %0.1f\nTiempo: %0.1f nanosegundos a %i digito   ", PI * 4, tiempo, digitos);    //Pasa los datos a un string
-                break;
-
-            case 2: //2 digitos
-
-                sprintf(r, "Resultado: %0.2f\nTiempo: %0.1f nanosegundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 4: //4 digitos
-
-                sprintf(r, "Resultado: %0.4f\nTiempo: %0.1f nanosegundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 6: //6 digitos
-
-                sprintf(r, "Resultado: %0.6f\nTiempo: %0.1f nanosegundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 8: //8 digitos
-
-                sprintf(r, "Resultado: %0.8f\nTiempo: %0.1f nanosegundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 10:    //10 digitos
-
-                sprintf(r, "Resultado: %0.10f\nTiempo: %0.1f nanosegundos a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-        }
-
-         MessageBox(NULL, r, "Resultados", MB_ICONASTERISK);    //Mensaje con los resultados
+        sstr << "Resultado: " << fixed << setprecision(digitos) << result.PI << endl << setprecision(1) <<
+        "Tiempo: " << result.tiempo << " nanosegundos a " << result.digitos << " digitos";
 
     }else if(tiempo < 0.001){   //microsegundo
 
@@ -96,42 +60,10 @@ void Calculo::calcular(INT64 sumatoria, int digitos){    //Calcula PI en mononuc
         result.digitos = digitos;
         result.PI = PI * 4;
         result.tiempo = tiempo;
+        result.codigo = 2;
 
-        switch(digitos){
-
-            case 1: //1 digito
-
-                sprintf(r, "Resultado: %0.1f\nTiempo: %0.1f microsegundos a %i digito   ", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 2: //2 digitos
-
-                sprintf(r, "Resultado: %0.2f\nTiempo: %0.1f microsegundos a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-            case 4: //4 digitos
-
-                sprintf(r, "Resultado: %0.4f\nTiempo: %0.1f microsegundos a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-            case 6: //6 digitos
-
-                sprintf(r, "Resultado: %0.6f\nTiempo: %0.1f microsegundos a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-            case 8: //8 digitos
-
-                sprintf(r, "Resultado: %0.8f\nTiempo: %0.1f microsegundos a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-            case 10:    //10 digitos
-
-                sprintf(r, "Resultado: %0.10f\nTiempo: %0.1f microsegundos a %i digitos", PI * 4, tiempo, digitos); //Pasa los datos a un string
-                break;
-
-        }
-
-        MessageBox(NULL, r, "Resultados", MB_ICONASTERISK); //Mensaje con los resultados
+        sstr << "Resultado: " << fixed << setprecision(digitos) << result.PI << endl << setprecision(1) <<
+        "Tiempo: " << result.tiempo << " microsegundos a " << result.digitos << " digitos";
 
     }else if(tiempo < 1){   //milisegundo
 
@@ -140,84 +72,21 @@ void Calculo::calcular(INT64 sumatoria, int digitos){    //Calcula PI en mononuc
         result.digitos = digitos;
         result.PI = PI * 4;
         result.tiempo = tiempo;
+        result.codigo = 3;
 
-        switch(digitos){
-
-            case 1: //1 digito
-
-                sprintf(r, "Resultado: %0.1f\nTiempo: %0.1f milisegundos a %i digito   ", PI * 4, tiempo, digitos);    //Pasa los datos a un string
-                break;
-
-            case 2: //2 digitos
-
-                sprintf(r, "Resultado: %0.2f\nTiempo: %0.1f milisegundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 4: //4 digitos
-
-                sprintf(r, "Resultado: %0.4f\nTiempo: %0.1f milisegundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 6: //6 digitos
-
-                sprintf(r, "Resultado: %0.6f\nTiempo: %0.1f milisegundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 8: //8 digitos
-
-                sprintf(r, "Resultado: %0.8f\nTiempo: %0.1f milisegundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 10:    //10 digitos
-
-                sprintf(r, "Resultado: %0.10f\nTiempo: %0.1f milisegundos a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-        }
-
-        MessageBox(NULL, r, "Resultados", MB_ICONASTERISK); //Mensaje con los resultados
+        sstr << "Resultado: " << fixed << setprecision(digitos) << result.PI << endl << setprecision(1) <<
+        "Tiempo: " << result.tiempo << " milisegundos a " << result.digitos << " digitos";
 
     }else if(tiempo < 60){  //segundo
 
         result.digitos = digitos;
         result.PI = PI * 4;
         result.tiempo = tiempo;
+        result.codigo = 4;
 
-        switch(digitos){
+        sstr << "Resultado: " << fixed << setprecision(digitos) << result.PI << endl << setprecision(1) <<
+        "Tiempo: " << result.tiempo << " segundos a " << result.digitos << " digitos";
 
-            case 1: //1 digito
-
-                sprintf(r, "Resultado: %0.1f\nTiempo: %0.1f segundos a %i digito   ", PI * 4, tiempo, digitos);    //Pasa los datos a un string
-                break;
-
-            case 2: //2 digitos
-
-                sprintf(r, "Resultado: %0.2f\nTiempo: %0.1f segundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 4: //4 digitos
-
-                sprintf(r, "Resultado: %0.4f\nTiempo: %0.1f segundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 6: //6 digitos
-
-                sprintf(r, "Resultado: %0.6f\nTiempo: %0.1f segundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 8: //8 digitos
-
-                sprintf(r, "Resultado: %0.8f\nTiempo: %0.1f segundos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 10:    //10 digitos
-
-                sprintf(r, "Resultado: %0.10f\nTiempo: %0.1f segundos a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-        }
-
-        MessageBox(NULL, r, "Resultados", MB_ICONASTERISK); //Mensaje con los resultados
 
     }else if(tiempo > 60 && tiempo < 3600){ //minutos
 
@@ -226,42 +95,10 @@ void Calculo::calcular(INT64 sumatoria, int digitos){    //Calcula PI en mononuc
         result.digitos = digitos;
         result.PI = PI * 4;
         result.tiempo = tiempo;
+        result.codigo = 5;
 
-        switch(digitos){
-
-            case 1: //1 digito
-
-                sprintf(r, "Resultado: %0.1f\nTiempo: %0.1f minutos a %i digito   ", PI * 4, tiempo, digitos); //Pasa los datos a un string
-                break;
-
-            case 2: //2 digitos
-
-                sprintf(r, "Resultado: %0.2f\nTiempo: %0.1f minutos a %i digitos", PI * 4, tiempo, digitos);    //Pasa los datos a un string
-                break;
-
-            case 4: //4 digitos
-
-                sprintf(r, "Resultado: %0.4f\nTiempo: %0.1f minutos a %i digitos", PI * 4, tiempo, digitos);    //Pasa los datos a un string
-                break;
-
-            case 6: //6 digitos
-
-                sprintf(r, "Resultado: %0.6f\nTiempo: %0.1f minutos a %i digitos", PI * 4, tiempo, digitos);    //Pasa los datos a un string
-                break;
-
-            case 8: //8 digitos
-
-                sprintf(r, "Resultado: %0.8f\nTiempo: %0.1f minutos a %i digitos", PI * 4, tiempo, digitos);    //Pasa los datos a un string
-                break;
-
-            case 10:    //10 digitos
-
-                sprintf(r, "Resultado: %0.10f\nTiempo: %0.1f minutos a %i digitos", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-        }
-
-        MessageBox(NULL, r, "Resultados", MB_ICONASTERISK); //Mensaje con los resultados
+        sstr << "Resultado: " << fixed << setprecision(digitos) << result.PI << endl << setprecision(1) <<
+        "Tiempo: " << result.tiempo << " minutos a " << result.digitos << " digitos";
 
     }else if(tiempo > 3600){    //horas
 
@@ -270,45 +107,15 @@ void Calculo::calcular(INT64 sumatoria, int digitos){    //Calcula PI en mononuc
         result.digitos = digitos;
         result.PI = PI * 4;
         result.tiempo = tiempo;
+        result.codigo = 6;
 
-        switch(digitos){
-
-            case 1: //1 digito
-
-                sprintf(r, "Resultado: %0.1f\nTiempo: %0.1f horas a %i digito   ", PI * 4, tiempo, digitos);   //Pasa los datos a un string
-                break;
-
-            case 2: //2 digitos
-
-                sprintf(r, "Resultado: %0.2f\nTiempo: %0.1f horas a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-            case 4: //4 digitos
-
-                sprintf(r, "Resultado: %0.4f\nTiempo: %0.1f horas a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-            case 6: //6 digitos
-
-                sprintf(r, "Resultado: %0.6f\nTiempo: %0.1f horas a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-            case 8: //8 digitos
-
-                sprintf(r, "Resultado: %0.8f\nTiempo: %0.1f horas a %i digitos", PI * 4, tiempo, digitos);  //Pasa los datos a un string
-                break;
-
-            case 10:    //10 digitos
-
-                sprintf(r, "Resultado: %0.10f\nTiempo: %0.1f horas a %i digitos", PI * 4, tiempo, digitos); //Pasa los datos a un string
-                break;
-
-        }
-
-        MessageBox(NULL, r, "Resultados", MB_ICONASTERISK); //Mensaje con los resultados
+        sstr << "Resultado: " << fixed << setprecision(digitos) << result.PI << endl << setprecision(1) <<
+        "Tiempo: " << result.tiempo << " horas a " << result.digitos << " digitos";
 
     }
 
+    r = sstr.str().c_str();
+    MessageBox(NULL, r, "Resultados", MB_ICONASTERISK); //Mensaje con los resultados
     escribir(&result);
 
 }
@@ -316,7 +123,13 @@ void Calculo::escribir(RESULTADOS* mensaje){
 
 
     FILE* ficheroEntrada;
-    ficheroEntrada = fopen("output.rst", "ab");
+
+    if(!(ficheroEntrada = fopen("output.rst", "ab"))){
+
+        MessageBox(NULL, "Error al crear archivo", "Error", MB_ICONERROR);
+
+    }
+
     fwrite(mensaje, sizeof(RESULTADOS), 1, ficheroEntrada);
     fclose(ficheroEntrada);
 

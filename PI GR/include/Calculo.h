@@ -1,20 +1,20 @@
 #ifndef CALCULO_H
 #define CALCULO_H
 #include <windows.h>
+#include <commctrl.h>
 #include <math.h>
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <tchar.h>
 #include <stdio.h>
-#include <string>
+#include <sstream>
 #include <fstream>
 
     class Calculo{
         public:
 
             Calculo();   //Constructor
-            void calcular(INT64, int);   //Calcula PI en mononucleo
+            void calcular(INT64, int, HWND);   //Calcula PI en mononucleo
             double getPI();  //Getter de "PI"
             double getTiempo();  //Getter de "tiempo"
 
@@ -22,6 +22,7 @@
 
                 double PI;
                 double tiempo;
+                int codigo;
                 int digitos;
 
             }RESULTADOS;
