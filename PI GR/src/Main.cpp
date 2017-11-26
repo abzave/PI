@@ -18,7 +18,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 
     static HINSTANCE instancia;
     pthread_t hilo; //Hilo para ejecucion en segundo plano
-    Calculo::RESULTADOS r;
+    Calculo cal;
 
 	switch (msj) {
 
@@ -32,10 +32,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 
 				int indice = SendDlgItemMessage(hWnd, CB_DIGITOS, CB_GETCURSEL, 0, 0);  //Opcion seleccionada en "cb"
 
-                if(pthread_create(&hilo, NULL, tarea, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
+				if(cal.estaCalculando() == false){
 
-                    MessageBox(hWnd, "Error al generar hilo de ejecucion", szTitle, MB_ICONERROR);  //Mensaje de error
-                    PostQuitMessage(3); //Cierre del la aplicacion
+                    if(indice != 5){
+
+                        if(pthread_create(&hilo, NULL, tarea, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
+
+                            MessageBox(hWnd, "Error al generar hilo de ejecucion", szTitle, MB_ICONERROR);  //Mensaje de error
+                            PostQuitMessage(3); //Cierre del la aplicacion
+
+                        }
+
+                    }else{
+
+                        if((MessageBox(hWnd, "¿Está seguro que desea calcular 10 digitos?\n¡Esta operaación puede llevar demasiado tiempo!", "Alerta", MB_ICONWARNING | MB_OKCANCEL)) == IDOK){
+
+                            if(pthread_create(&hilo, NULL, tarea, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
+
+                                MessageBox(hWnd, "Error al generar hilo de ejecucion", szTitle, MB_ICONERROR);  //Mensaje de error
+                                PostQuitMessage(3); //Cierre del la aplicacion
+
+                            }
+
+                        }
+
+                    }
+                }else{
+
+                    MessageBox(hWnd, "Calculo en ejecución por favor espere a que termine", "Error", MB_ICONERROR);
 
                 }
 

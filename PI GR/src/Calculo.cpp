@@ -2,7 +2,7 @@
 
 using namespace std;
 
-
+bool Calculo::calculando = false;
 
 Calculo::Calculo(){ //Constructor
 
@@ -21,7 +21,9 @@ double Calculo::performanceCounter(LARGE_INTEGER *ini, LARGE_INTEGER *fin){ //Ca
 }
 void Calculo::calcular(INT64 sumatoria, int digitos, HWND barraProgreso){    //Calcula PI en mononucleo
 
+    calculando = true;
     PI = 0; //Cambia el valor de PI
+    int count = 1;
     LPCSTR r;    //Almacena los resultados en un string
     static RESULTADOS result;
     stringstream sstr("");
@@ -31,8 +33,16 @@ void Calculo::calcular(INT64 sumatoria, int digitos, HWND barraProgreso){    //C
 
         PI = PI + (pow(-1, i) / (2 * i + 1));   //Formula de Leibniz
 
-        porcentaje = ((double)i / (double)sumatoria) * 100;
-        SendMessage(barraProgreso, PBM_SETPOS, (WPARAM)porcentaje, 0);
+        QueryPerformanceCounter(&fin);
+
+        if(performanceCounter(&ini, &fin) == 1 * count){
+
+            porcentaje = ((double)i / (double)sumatoria) * 100;
+            SendMessage(barraProgreso, PBM_SETPOS, (WPARAM)porcentaje, 0);
+
+            count++;
+
+        }
 
     }
 
@@ -118,6 +128,8 @@ void Calculo::calcular(INT64 sumatoria, int digitos, HWND barraProgreso){    //C
     MessageBox(NULL, r, "Resultados", MB_ICONASTERISK); //Mensaje con los resultados
     escribir(&result);
 
+    calculando = false;
+
 }
 void Calculo::escribir(RESULTADOS* mensaje){
 
@@ -132,6 +144,11 @@ void Calculo::escribir(RESULTADOS* mensaje){
 
     fwrite(mensaje, sizeof(RESULTADOS), 1, ficheroEntrada);
     fclose(ficheroEntrada);
+
+}
+bool Calculo::estaCalculando(){
+
+    return calculando;
 
 }
 double Calculo::getPI(){    //Getter de "PI"
