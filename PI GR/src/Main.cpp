@@ -6,37 +6,41 @@
 
 using namespace std;
 
-LPCSTR szWindowClass = "Clase";	//Nombre de la aplicacion
+LPCSTR szWindowClass = "PI";	//Nombre de la aplicacion
 LPCSTR szTitle = "PI";	//Nombre de la barra de titulo
-HWND ventana, calc, sal, ver, label, cb, pb;	//Elementos
+HWND ventana, calcular, salir, ver, label, comboBox, barraProgreso;	//Elementos
 
-void* tarea(void*); //Funcion que inicia el calculo
-void mostrar(HWND, Calculo::RESULTADOS*);    //Lee "output.txt"
-BOOL CALLBACK DlgResultadosProc(HWND, UINT, WPARAM, LPARAM);
+void* calculo(void*); //Funcion que inicia el calculo
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//Proceso de mensajes
+void mostrar(HWND, Calculo::RESULTADOS*);    //Lee "output.rst"
+void agregarResultado(HWND, Calculo::RESULTADOS*);    //Interpreta el resultado en "output.rst"
+void agregarCodigo(HWND, Calculo::RESULTADOS*); //Interpreta el codigo de duración en "output.rst"
 
-    static HINSTANCE instancia;
+BOOL CALLBACK DlgResultadosProc(HWND, UINT, WPARAM, LPARAM);    //Proceso de mensajes de "Ver resultados"
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT mensaje, WPARAM wParam, LPARAM lParam) {	//Proceso de mensajes
+
+    static HINSTANCE instancia; //Instancia de ventana
     pthread_t hilo; //Hilo para ejecucion en segundo plano
-    Calculo cal;
+    Calculo calculador; //Instancia de Calculo
 
-	switch (msj) {
+	switch (mensaje) {
 
-        case WM_CREATE:
+        case WM_CREATE: //Mensaje de creación de la ventana
 
-            instancia = ((LPCREATESTRUCT)lParam) -> hInstance;
+            instancia = ((LPCREATESTRUCT)lParam) -> hInstance;  //Almacena la instacia de ventana
 
-		case WM_COMMAND:	//Click
+		case WM_COMMAND:	//Mensaje de click
 
-			if((HWND)lParam == calc){	//Boton "Calcular PI"
+			if((HWND)lParam == calcular){	//Boton "Calcular PI"
 
 				int indice = SendDlgItemMessage(hWnd, CB_DIGITOS, CB_GETCURSEL, 0, 0);  //Opcion seleccionada en "cb"
 
-				if(cal.estaCalculando() == false){
+				if(calculador.estaCalculando() == false){   //Verifica que no se esté ejecutando otro calculo
 
-                    if(indice != 5){
+                    if(indice != 5){    //Verifica que la cantidad de digitos no sea 10
 
-                        if(pthread_create(&hilo, NULL, tarea, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
+                        if(pthread_create(&hilo, NULL, calculo, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
 
                             MessageBox(hWnd, "Error al generar hilo de ejecucion", szTitle, MB_ICONERROR);  //Mensaje de error
                             PostQuitMessage(3); //Cierre del la aplicacion
@@ -45,9 +49,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 
                     }else{
 
-                        if((MessageBox(hWnd, "¿Está seguro que desea calcular 10 digitos?\n¡Esta operaación puede llevar demasiado tiempo!", "Alerta", MB_ICONWARNING | MB_OKCANCEL)) == IDOK){
+                        if((MessageBox(hWnd, "¿Está seguro que desea calcular 10 digitos?\n¡Esta operaación puede llevar demasiado tiempo!",
+                        szTitle, MB_ICONWARNING | MB_OKCANCEL)) == IDOK){ //Advertencia
 
-                            if(pthread_create(&hilo, NULL, tarea, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
+                            if(pthread_create(&hilo, NULL, calculo, (void*)indice)){  //Ejecuta el calculo en un hilo a parte para evitar cuelgue
 
                                 MessageBox(hWnd, "Error al generar hilo de ejecucion", szTitle, MB_ICONERROR);  //Mensaje de error
                                 PostQuitMessage(3); //Cierre del la aplicacion
@@ -57,19 +62,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
                         }
 
                     }
+
                 }else{
 
-                    MessageBox(hWnd, "Calculo en ejecución por favor espere a que termine", "Error", MB_ICONERROR);
+                    MessageBox(hWnd, "Calculo en ejecución por favor espere a que termine", szTitle, MB_ICONERROR); //Mensaje de error
 
                 }
 
 			}
-			if((HWND)lParam == ver){
+			if((HWND)lParam == ver){    //Boton "Ver resultados"
 
-                DialogBox(instancia, "DlgResultados", ventana, DlgResultadosProc);
+                DialogBox(instancia, "DlgResultados", ventana, DlgResultadosProc);  //Despliega el cuadro de dialogo "DlgResultados"
 
 			}
-			if((HWND)lParam == sal){	//Boton "Salir"
+			if((HWND)lParam == salir){	//Boton "Salir"
 
 				PostQuitMessage(0); //Cierre del la aplicacion
 
@@ -77,7 +83,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 
 			break;
 
-            case WM_SIZE:   //Cambio de dimensiones de la ventana
+            case WM_SIZE:   //Mensaje de cambio de dimensiones de la ventana
 
                 RECT rect;  //Almacena coordenadas del control
                 int ancho;  //Ancho del control
@@ -104,8 +110,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 
 		default:
 
-			return DefWindowProc(hWnd, msj, wParam, lParam);	//Procesamiento por defecto
-			break;
+			return DefWindowProc(hWnd, mensaje, wParam, lParam);	//Procesamiento por defecto
 
 	}
 
@@ -115,8 +120,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msj, WPARAM wParam, LPARAM lParam) {	//
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {	//Main
 
-	const char* dig[] = {"1", "2", "4", "6", "8", "10"};    //Elementos del "COMBOBOX"
-    int items = (sizeof(dig) / (sizeof(char*)));    //Medida de "dig"
+	const char* digitos[] = {"1", "2", "4", "6", "8", "10"};    //Elementos del "COMBOBOX"
+    int items = (sizeof(digitos) / (sizeof(char*)));    //Medida de "dig"
 
 	WNDCLASSEX wcex;	//Clase de ventana
 	wcex.cbSize = sizeof(WNDCLASSEX);	//Tamño de la estructura
@@ -134,22 +139,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	if (!RegisterClassEx(&wcex)) {	//Registro de la clase
 
-		MessageBox(NULL, "Fallo la llamada a RegisterClassEx!", "PI", MB_ICONERROR);	//Mensaje de error
+		MessageBox(NULL, "Fallo la llamada a RegisterClassEx!", szTitle, MB_ICONERROR);	//Mensaje de error
 		return 1;
 
 	}
 
 	ventana = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 640, 480, NULL, NULL, hInstance, NULL); //Crea la ventana
-	calc = CreateWindow("BUTTON", "Calcular PI", WS_CHILD | WS_VISIBLE, 10, 10, 100, 20, ventana, NULL, hInstance, NULL);   //Crea el boton "Calcular PI"
-	ver = CreateWindow("BUTTON", "Ver resultados", WS_CHILD | WS_VISIBLE, 120, 10, 120, 20, ventana, NULL, hInstance, NULL);
-	sal = CreateWindow("BUTTON", "Salir", WS_CHILD | WS_VISIBLE, 520, 410, 90, 20, ventana, (HMENU)ID_SALIR, hInstance, NULL); //Crea el boton "Salir"
+	calcular = CreateWindow("BUTTON", "Calcular PI", WS_CHILD | WS_VISIBLE, 10, 10, 100, 20, ventana, NULL, hInstance, NULL);   //Crea el boton "Calcular PI"
+	ver = CreateWindow("BUTTON", "Ver resultados", WS_CHILD | WS_VISIBLE, 120, 10, 120, 20, ventana, NULL, hInstance, NULL);    //Crea el boton "Ver resultados"
+	salir = CreateWindow("BUTTON", "Salir", WS_CHILD | WS_VISIBLE, 520, 410, 90, 20, ventana, (HMENU)ID_SALIR, hInstance, NULL); //Crea el boton "Salir"
 	label = CreateWindow("STATIC", "Digitos", WS_CHILD | WS_VISIBLE, 60, 45, 45, 30, ventana, NULL, hInstance, NULL);   //Crea el texto "Digitos"
-	cb = CreateWindow("COMBOBOX", "", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE, 10, 40, 50, 150, ventana, (HMENU)CB_DIGITOS, hInstance, NULL);  //Crea el menú desplegable
-	pb = CreateWindow(PROGRESS_CLASS, "", PBS_SMOOTH | WS_CHILD | WS_VISIBLE, 250, 10, 100, 20, ventana, (HMENU)PB_PROGRESO, hInstance, NULL);
+	comboBox = CreateWindow("COMBOBOX", "", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE, 10, 40, 50, 150, ventana, (HMENU)CB_DIGITOS, hInstance, NULL);  //Crea el menú desplegable
+	barraProgreso = CreateWindow(PROGRESS_CLASS, "", PBS_SMOOTH | WS_CHILD | WS_VISIBLE, 250, 10, 100, 20, ventana, (HMENU)PB_PROGRESO, hInstance, NULL);   //Crea la barra de progreso
 
 	for(int i = 0; i < items; i++){
 
-        SendDlgItemMessage(ventana, CB_DIGITOS, CB_ADDSTRING, 0, (LPARAM)dig[i]);   //Añade los elementos de "dig" al menu desplegable
+        SendDlgItemMessage(ventana, CB_DIGITOS, CB_ADDSTRING, 0, (LPARAM)digitos[i]);   //Añade los elementos de "dig" al menu desplegable
 
     }
     SendDlgItemMessage(ventana, CB_DIGITOS, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);    //Posiciona el "COMBOBOX" en el primer elemento por defecto
@@ -164,21 +169,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ShowWindow(ventana, nCmdShow);	//Muestra la ventana
 	UpdateWindow(ventana);	//Actualiza la ventana
 
-	MSG msj;	//Guarda mensajes
+	MSG mensaje;	//Guarda mensajes
 
-	while (GetMessage(&msj, NULL, 0, 0)) {	//Obtiene los mensajes
+	while (GetMessage(&mensaje, NULL, 0, 0)) {	//Obtiene los mensajes
 
-		TranslateMessage(&msj);
-		DispatchMessage(&msj);	//Envia el mensaje al proceso de mensajes
+        /*Envia el mensaje al proceso de mensajes*/
+
+		TranslateMessage(&mensaje);
+		DispatchMessage(&mensaje);
 
 	}
 
-	return (int)msj.wParam;	//Estatus de salida
+	return (int)mensaje.wParam;	//Estatus de salida
 
 }
-void* tarea(void* indice){
 
-    Calculo calcu;  //Instancia de Calculo
+void* calculo(void* indice){    //Funcion que inicia el calculo
+
+    Calculo calculador;  //Instancia de Calculo
 
     switch((int)indice){ //Comprueba opcion del "COMBOBOX"
 
@@ -186,227 +194,242 @@ void* tarea(void* indice){
 
         case 0: //1 digito
 
-            calcu.calcular(19, 1, pb);    //Calcula 1 digito de PI
+            calculador.calcular(19, 1, barraProgreso);    //Calcula 1 digito de PI
             break;
 
         case 1: //2 digitos
 
-            calcu.calcular(293, 2, pb);   //Calcula 2 digitos de PI
+            calculador.calcular(293, 2, barraProgreso);   //Calcula 2 digitos de PI
             break;
 
         case 2: //4 digitos
 
-            calcu.calcular(17375, 4, pb); //Calcula 4 digitos de PI
+            calculador.calcular(17375, 4, barraProgreso); //Calcula 4 digitos de PI
             break;
 
         case 3: //6 digitos
 
-            calcu.calcular(20000004, 6, pb);  //Calcula 6 digitos de PI
+            calculador.calcular(20000004, 6, barraProgreso);  //Calcula 6 digitos de PI
             break;
 
         case 4: //8 digitos
 
-            calcu.calcular(117000001, 8, pb); //Calcula 8 digitos de PI
+            calculador.calcular(117000001, 8, barraProgreso); //Calcula 8 digitos de PI
             break;
 
         case 5: //10 digitos
 
-            calcu.calcular(16343000102LL, 10, pb);    //Calcula 10 digitos de PI
+            calculador.calcular(16343000102LL, 10, barraProgreso);    //Calcula 10 digitos de PI
             break;
 
     }
 
 }
-void mostrar(HWND ventana, Calculo::RESULTADOS* r){
 
-    char buffer[20];
+void mostrar(HWND ventana, Calculo::RESULTADOS* resultados){    //Lee "output.rst"
 
-    SetDlgItemInt(ventana, EDT_DIGITOS, r -> digitos, TRUE);
+    char buffer[20];    //buffer para el texto
 
-    memset(buffer, '\0', 20);
-    sprintf(buffer, "%0.1f", r -> tiempo);
-    SetDlgItemText(ventana, EDT_DURACION, buffer);
+    SetDlgItemInt(ventana, EDT_DIGITOS, resultados -> digitos, TRUE);   //Muestra la cantidad de digitos
 
-    switch(r -> digitos){
+    memset(buffer, '\0', 20);   //Limpia el buffer
+    sprintf(buffer, "%0.1f", resultados -> tiempo); //Guarda el tiempo en el buffer
+    SetDlgItemText(ventana, EDT_DURACION, buffer);  //Muestra el tiempo de ejecucion
+
+    agregarCodigo(ventana, resultados); //Muesta la unidad de tiempo
+    agregarResultado(ventana, resultados);    //Muestra el resultado del calculo
+
+}
+
+void agregarCodigo(HWND ventana, Calculo::RESULTADOS* resultados){  //Interpreta el codigo de duración en "output.rst"
+
+    switch(resultados -> codigo){   //Verifica el codigo
+
+        case 1: //nanosegundo
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "ns");  //Muesta la unidad de tiempo
+
+            break;
+
+        case 2: //microsegundos
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "us");  //Muesta la unidad de tiempo
+
+            break;
+
+        case 3: //milisegundos
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "ms");  //Muesta la unidad de tiempo
+
+            break;
+
+        case 4: //segundos
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "s");   //Muesta la unidad de tiempo
+
+            break;
+
+        case 5: //minutos
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "m");   //Muesta la unidad de tiempo
+
+            break;
+
+        case 6: //horas
+
+            SetDlgItemText(ventana, EDT_TIEMPO, "h");   //Muesta la unidad de tiempo
+
+            break;
+
+    }
+
+}
+
+void agregarResultado(HWND ventana, Calculo::RESULTADOS* resultados){   //Interpreta el resultado en "output.rst"
+
+    char buffer[20];    //buffer para el texto
+
+    switch(resultados -> digitos){  //verifica la cantidad de digitos
 
         case 1:
 
-            memset(buffer, '\0', 20);
-            sprintf(buffer, "%0.1f", r -> PI);
-            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+            memset(buffer, '\0', 20);   //Limpia el buffer
+            sprintf(buffer, "%0.1f", resultados -> PI); //Guarda el resultado con 1 decimal
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer); //Muestra el resultado
 
             break;
 
         case 2:
 
-            memset(buffer, '\0', 20);
-            sprintf(buffer, "%0.2f", r -> PI);
-            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+            memset(buffer, '\0', 20);   //Limpia el buffer
+            sprintf(buffer, "%0.2f", resultados -> PI); //Guarda el resultado con 2 decimales
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer); //Muestra el resultado
 
             break;
 
         case 4:
 
-            memset(buffer, '\0', 20);
-            sprintf(buffer, "%0.4f", r -> PI);
-            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+            memset(buffer, '\0', 20);   //Limpia el buffer
+            sprintf(buffer, "%0.4f", resultados -> PI); //Guarda el resultado con 4 decimales
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer); //Muestra el resultado
 
             break;
 
         case 6:
 
-            memset(buffer, '\0', 20);
-            sprintf(buffer, "%0.6f", r -> PI);
-            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+            memset(buffer, '\0', 20);   //Limpia el buffer
+            sprintf(buffer, "%0.6f", resultados -> PI); //Guarda el resultado con 6 decimales
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer); //Muestra el resultado
 
             break;
 
         case 8:
 
-            memset(buffer, '\0', 20);
-            sprintf(buffer, "%0.8f", r -> PI);
-            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
+            memset(buffer, '\0', 20);   //Limpia el buffer
+            sprintf(buffer, "%0.8f", resultados -> PI); //Guarda el resultado con 8 decimales
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer); //Muestra el resultado
 
             break;
 
         case 10:
 
-            memset(buffer, '\0', 20);
-            sprintf(buffer, "%0.10f", r -> PI);
-            SetDlgItemText(ventana, EDT_RESULTADO, buffer);
-
-            break;
-
-    }
-
-    switch(r -> codigo){
-
-        case 1:
-
-            SetDlgItemText(ventana, EDT_TIEMPO, "ns");
-
-            break;
-
-        case 2:
-
-            SetDlgItemText(ventana, EDT_TIEMPO, "us");
-
-            break;
-
-        case 3:
-
-            SetDlgItemText(ventana, EDT_TIEMPO, "ms");
-
-            break;
-
-        case 4:
-
-            SetDlgItemText(ventana, EDT_TIEMPO, "s");
-
-            break;
-
-        case 5:
-
-            SetDlgItemText(ventana, EDT_TIEMPO, "m");
-
-            break;
-
-        case 6:
-
-            SetDlgItemText(ventana, EDT_TIEMPO, "h");
+            memset(buffer, '\0', 20);   //Limpia el buffer
+            sprintf(buffer, "%0.10f", resultados -> PI);    //Guarda el resultado con 10 decimales
+            SetDlgItemText(ventana, EDT_RESULTADO, buffer); //Muestra el resultado
 
             break;
 
     }
 
 }
-BOOL CALLBACK DlgResultadosProc(HWND ventana, UINT msj, WPARAM wParam, LPARAM lParam){
 
-    static FILE* ficheroSalida;
-    static int pos = 0;
-    static int resultados = 0;
-    Calculo::RESULTADOS r;
+BOOL CALLBACK DlgResultadosProc(HWND ventana, UINT mensaje, WPARAM wParam, LPARAM lParam){  //Proceso de mensajes de "Ver resultados"
 
-    switch(msj){
+    static FILE* ficheroSalida; //Fichero
+    static int posicion = 0;    //Posicion de navegacion
+    static int elementos = 0;   //Elementos en "output.rst"
+    Calculo::RESULTADOS resultados; //Almacena los resultados del calculo
 
-        case WM_INITDIALOG:
+    switch(mensaje){
 
-            if(!(ficheroSalida = fopen("output.rst", "rb"))){
+        case WM_INITDIALOG: //Mensaje de creacion del cuadro de dialogo
 
-                MessageBox(ventana, "Error al abrir el archivo output.txt", "Error", MB_ICONERROR);
-                EndDialog(ventana, TRUE);
+            if(!(ficheroSalida = fopen("output.rst", "rb"))){   //Abre el archivo
+
+                MessageBox(ventana, "Error al abrir el archivo output.txt", szTitle, MB_ICONERROR); //Mensaje de error
+                EndDialog(ventana, TRUE);   //Cierra el cuadro de dialogo
 
             }
 
-            fseek(ficheroSalida, 0, SEEK_END);
-            resultados = (int)(ftell(ficheroSalida)/sizeof(Calculo::RESULTADOS));
+            fseek(ficheroSalida, 0, SEEK_END);  //Posiciona el cursor al final del archivo
+            elementos = (int)(ftell(ficheroSalida)/sizeof(Calculo::RESULTADOS));    //Calcula la cantidad de elementos en "output.rst"
 
-            rewind(ficheroSalida);
-            fread(&r, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);
-            mostrar(ventana, &r);
+            rewind(ficheroSalida);  //Vuelve al inicio del archivo
+            fread(&resultados, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);  //Lee el primer resultado
+            mostrar(ventana, &resultados);  //Muestra la informacion
 
-            pos = 0;
-            EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), FALSE);
-            if(resultados == 1){
+            posicion = 0;   //Resetea "posicion"
+            EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), FALSE);  //Inhavilita el boton "Anterior"
+            if(elementos == 1){ //Verifica que halla más de un elemento
 
-                EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), FALSE);
+                EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), FALSE); //Inhavilita el boton "Siguiente"
 
             }
 
             break;
 
 
-        case WM_COMMAND:
+        case WM_COMMAND:    //Mensaje de click
 
             switch(LOWORD(wParam)){
 
-                case ID_ANTERIOR:
+                case ID_ANTERIOR:   //Boton "Anterior"
 
-                    pos--;
-                    if(pos < 1){
+                    posicion--; //Disminuye una posicion
+                    if(posicion < 1){   //Verifica que se esté en la posicion 0
 
-                        EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), FALSE);
+                        EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), FALSE);  //Inhavilita el boton "Anterior"
 
                     }
-                    EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), TRUE);
+                    EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), TRUE);  //Habilita el boton "Siguiente"
 
-                    rewind(ficheroSalida);
-                    fseek(ficheroSalida, pos * sizeof(Calculo::RESULTADOS), SEEK_SET);
-                    fread(&r, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);
-                    mostrar(ventana, &r);
+                    rewind(ficheroSalida);  //Vuelve al inicio del archivo
+                    fseek(ficheroSalida, posicion * sizeof(Calculo::RESULTADOS), SEEK_SET); //Mueve el cursor al resultado correspondiente a la posicion
+                    fread(&resultados, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);  //Lee el resultado que se encuentre en esa posicion
+                    mostrar(ventana, &resultados);  //Muestra la informacion
 
                     break;
 
-                case ID_SIGUIENTE:
+                case ID_SIGUIENTE:  //boton "Siguiente"
 
-                    pos++;
-                    if(pos >= (resultados - 1)){
+                    posicion++; //Aumenta una posicion
+                    if(posicion >= (elementos - 1)){    //Veficia que este en el ultimo elemento
 
-                        EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), FALSE);
+                        EnableWindow(GetDlgItem(ventana, ID_SIGUIENTE), FALSE); //Inhabilita el boton "Siguiente"
 
                     }
-                    EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), TRUE);
+                    EnableWindow(GetDlgItem(ventana, ID_ANTERIOR), TRUE);   //Habilita el boton "Anterior"
 
-                    rewind(ficheroSalida);
-                    fseek(ficheroSalida, pos * sizeof(Calculo::RESULTADOS), SEEK_SET);
-                    fread(&r, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);
-                    mostrar(ventana, &r);
+                    rewind(ficheroSalida);  //Vuelve al inicio del archivo
+                    fseek(ficheroSalida, posicion * sizeof(Calculo::RESULTADOS), SEEK_SET); //Mueve el cursor al resultado correspondiente a la posicion
+                    fread(&resultados, sizeof(Calculo::RESULTADOS), 1, ficheroSalida);  //Lee el resultado que se encuentre en esa posicion
+                    mostrar(ventana, &resultados);  //Muestra la informacion
 
                     break;
 
-                case IDOK:
+                case IDOK:  //Boton "Aceptar"
 
-                    EndDialog(ventana, TRUE);
+                    EndDialog(ventana, TRUE);   //Cierra el cuadro de dialogo
                     break;
 
             }
 
             return TRUE;
 
-        case WM_CLOSE:
+        case WM_CLOSE:  //Mensaje de cierre
 
-            fclose(ficheroSalida);
-            EndDialog(ventana, TRUE);
+            fclose(ficheroSalida);  //Cierra el archivo
+            EndDialog(ventana, TRUE);   //Cierra el cuadro de dialogo
             return TRUE;
 
     }

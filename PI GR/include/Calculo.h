@@ -14,10 +14,14 @@
         public:
 
             Calculo();   //Constructor
+
             void calcular(INT64, int, HWND);   //Calcula PI en mononucleo
-            static bool estaCalculando();
+
+            static bool estaCalculando();   //Getter de "calculando"
             double getPI();  //Getter de "PI"
             double getTiempo();  //Getter de "tiempo"
+
+            /*Estructura para almacenar los datos del calculo*/
 
             typedef struct{
 
@@ -30,11 +34,11 @@
 
         private:
 
-            void escribir(RESULTADOS*);
-            double performanceCounter(LARGE_INTEGER*, LARGE_INTEGER*);   //Calcula el tiempo de ejecucion
+            void escribir(RESULTADOS*); //Almacena los datos
+            LPCSTR duracion(RESULTADOS*, int);
+
             double PI, tiempo, porcentaje;  //"PI" almacena PI    "tiempo" almacena el tiempo de ejecucion  "porcentaje" almacena el progreso del calculo
-            static bool calculando;
-            LARGE_INTEGER ini, fin; //Marcadores de tiempo de ejecucion
+            static bool calculando; //Marcador para evitar multiple calculo simultaneamente
 
     };
 
