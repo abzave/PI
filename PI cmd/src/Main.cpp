@@ -5,88 +5,39 @@
 
 using namespace std;
 
-void escribir(int, int, double, double);	//Almacena los datos
-void leer();	//Lee el fichero
+void escribirResultados(int, int, double, double);
+void leerResultados();
+string obtenerUnidad(int);
+void opcionCalcular(int, Calculo);
+int pedirCantidadDeDigitos();
 
 int main(int argc, char *argv[]){
-	int opciones = 0;	//Opciones
-	int codigo = -1;  //Codigo de duracion
-	bool valido = false;    //Validacion de entrada
-	Calculo calculador;   //Instancia de calculo
+	int opciones = 0;
+	Calculo calculador;
 	cout << "Ingrese una opcion" << endl;
 	while(true){	//Menu
 		cout << "1) Calcular PI" << endl;
 		cout << "2) Ver resultados" << endl;
 		cout << "3) salir" << endl;
-		cin >> opciones;    //Obtiene el dato ingresado
-		switch(opciones){	//Validacion de opciones
+		cin >> opciones;
+		switch(opciones){
 			case 1:	//Opcion "Calcular PI"
-			    system("cls");  //Limpia la pantalla
-				cout << "Ingrese la cantidad de digitos a calcular" << endl;
-				valido = false; //Resetear valido
-				while(!valido){	//Menu 2
-					cout << "1) 1 digito" << endl;
-					cout << "2) 2 digitos" << endl;
-					cout << "3) 4 digitos" << endl;
-					cout << "4) 6 digitos" << endl;
-					cout << "5) 8 digitos" << endl;
-					cout << "6) 10 digitos" << endl;
-					cout << "7) Atras" << endl;
-					cin >> opciones;   //Obtiene el dato ingresado
-					switch(opciones){	//Validacion de opciones
-					    /*Los datos del parametro "sumatoria" son el minimo para obtener un resultado correcto*/
-						case 1: //opcion "1"
-							codigo = calculador.calcular(19, 1);	//Calular e imprimir 2 digito de PI
-							escribir(1, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
-							valido = true;
-							break;
-						case 2:	//Opcion "2"
-							codigo = calculador.calcular(293, 2);	//Calular e imprimir 2 digito de PI
-							escribir(2, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
-							valido = true;	//Salir del menu 2
-							break;
-						case 3:	//Opcion "4"
-							codigo = calculador.calcular(17375, 4);	//Calular e imprimir 4 digito de PI
-							escribir(4, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
-							valido = true;	//Salir del menu 2
-							break;
-						case 4:	//Opcion "6"
-							codigo = calculador.calcular(20000004, 6);	//Calular e imprimir 6 digito de PI
-							escribir(6, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
-							valido = true;	//Salir del menu
-							break;
-						case 5:	//Opcion "8"
-							codigo = calculador.calcular(117000001, 8);	//Calular e imprimir 8 digito de PI
-							escribir(8, codigo, calculador.getTiempo(), calculador.getPI());   //Almacena los resultados en "output.txt"
-							valido = true;	//Salir del menu
-							break;
-						case 6:
-							codigo = calculador.calcular(16343000102LL, 10);	//Calular e imprimir 10 digito de PI
-							escribir(10, codigo, calculador.getTiempo(), calculador.getPI());  //Almacena los resultados en "output.txt"
-							valido = true;	//Salir del menu
-							break;
-                        case 7:
-                            valido = true;
-                            system("cls");
-                            break;
-						default:	//Opcion no valida
-                            system("cls");  //Limpia la pantalla
-							cout << "Selecione una opcion valida" << endl;	//Mensaje de error
-					}
-				}
-				opciones = 0;	//Resetear opciones
+			    system("cls");
+				int opcion;
+				opcion = pedirCantidadDeDigitos();
+				opcionCalcular(opcion, calculador);
 				break;
 			case 2: //Opcion "Ver resultados"
-			    system("cls");  //Limpia la pantalla
-				leer(); //Lee los datos de "output.txt"
-				cout << endl;   //Separa la informacion
+			    system("cls");
+				leerResultados();
+				cout << endl;
 				break;
 			case 3:	//Opcion "Salir"
-				exit(0);    //Salir
+				exit(0);
 				break;
-			default:	//Opcion no valida
-                system("cls");  //Limpia la pantalla
-				cout << "Selecione una opcion valida" << endl;	//Mensaje de error
+			default:
+                system("cls");
+				cout << "Selecione una opcion valida" << endl;
 		}
 	}
 	return 0;
@@ -97,32 +48,13 @@ Entradas: Digitos de tipo entero, codigo de tipo entero, tiempo de tipo double y
 Salidas: Escribe en el archivo los resultados del benchmark
 Funcionamiento: Escribe en el archivo output.txt y le da formato a los datos que se le pasan por parametro (los resultados del benchmark)
 */
-void escribir(int digitos, int codigo, double tiempo, double resultado){
-	ofstream fichero;   //Instancia fichero
-	fichero.open("output.txt", fstream::in | fstream::app);	//Abre o crea el fichero    fstream::ate para agregar al final del fichero
-	switch(codigo){
-        case 0: //nanosegundos
-            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "ns" << endl << "Resultado: " << resultado << endl << endl;	//Mensaje que se almacena
-            break;
-        case 1: //microsegundos
-            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "us" << endl << "Resultado: " << resultado << endl << endl;    //Mensaje que se almacena
-            break;
-        case 2: //milisegundos
-            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "ms" << endl << "Resultado: " << resultado << endl << endl;    //Mensaje que se almacena
-            break;
-        case 3: //segundos
-            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "s" << endl << "Resultado: " << resultado << endl << endl; //Mensaje que se almacena
-            break;
-        case 4: //minutos
-            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "min" << endl << "Resultado: " << resultado << endl << endl;   //Mensaje que se almacena
-            break;
-        case 5: //horas
-            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "h" << endl << "Resultado: " << resultado << endl << endl; //Mensaje que se almacena
-            break;
-        default:
-            fichero << "DIGITOS: " << digitos << endl << endl << "Duracion: " << fixed << setprecision(digitos) << tiempo << "Sin especificar unidad" << endl << "Resultado: " << resultado << endl << endl;    //Mensaje que se almacena
-    }
-	fichero.close();    //Cierra el fichero
+void escribirResultados(int digitos, int codigo, double tiempo, double resultado){
+	ofstream archivo;
+	archivo.open("output.txt", fstream::in | fstream::app);
+	archivo << "DIGITOS: " << digitos << endl << endl;
+	archivo << "Duracion: " << fixed << setprecision(digitos) << tiempo << obtenerUnidad(codigo) << endl;
+    archivo << "Resultado: " << resultado << endl << endl;
+	archivo.close();
 }
 
 /*
@@ -130,11 +62,99 @@ Entradas: N/A
 Salidas: Imprime en pantalla lo que hay en output.txt
 Funcionamiento: Abre output.txt e imprime en pantalla su contenido
 */
-void leer(){
-	ifstream fichero ("output.txt");    //Abre el fichero
-	string cadena;	//Almacena el texto del fichero
-	while(getline(fichero, cadena)){    //Guarda en "cadena" los datos del fichero
-        cout << cadena << endl; //Imprime el contenido del fichero
+void leerResultados(){
+	ifstream archivo ("output.txt");
+	string cadena;
+	while(getline(archivo, cadena)){
+        cout << cadena << endl;
 	}
-	fichero.close(); //Cierra el fichero
+	archivo.close();
+}
+
+string obtenerUnidad(int codigo){
+    switch(codigo){
+        case 0: //nanosegundos
+            return "ns";
+        case 1: //microsegundos
+            return "us";
+        case 2: //milisegundos
+            return "ms";
+        case 3: //segundos
+            return "s";
+        case 4: //minutos
+            return "min";
+            break;
+        case 5: //horas
+            return "h";
+        default:
+            return "Sin especificar unidad";
+    }
+}
+
+/*
+Entradas: opcion de tipo entero y calculador de tipo Calculo
+Salidas: Calcula una cantidad de digitos de PI acorde a la opción pasada por parametro
+Funcionamiento: Verifica la opción pasada y calcula los dígitos de PI deseados y luego llama a escribir
+*/
+void opcionCalcular(int opcion, Calculo calculador){
+    int codigo;
+    switch(opcion){
+    /*Los datos del parametro "sumatoria" son el minimo para obtener un resultado correcto*/
+        case 1:     //Opcion 1 dígito
+            codigo = calculador.calcular(19, 1);
+            escribirResultados(1, codigo, calculador.getTiempo(), calculador.getPI());
+            break;
+        case 2:     //Opcion 2 dígito
+            codigo = calculador.calcular(293, 2);
+            escribirResultados(2, codigo, calculador.getTiempo(), calculador.getPI());
+            break;
+        case 3:     //Opcion 4 dígito
+            codigo = calculador.calcular(17375, 4);
+            escribirResultados(4, codigo, calculador.getTiempo(), calculador.getPI());
+            break;
+        case 4:     //Opcion 6 dígito
+            codigo = calculador.calcular(20000004, 6);
+            escribirResultados(6, codigo, calculador.getTiempo(), calculador.getPI());
+            break;
+        case 5:     //Opcion 8 dígito
+            codigo = calculador.calcular(117000001, 8);
+            escribirResultados(8, codigo, calculador.getTiempo(), calculador.getPI());
+            break;
+        case 6:     //Opcion 10 dígito
+            codigo = calculador.calcular(16343000102LL, 10);
+            escribirResultados(10, codigo, calculador.getTiempo(), calculador.getPI());
+            break;
+        case 7:     //Opcion volver
+            system("cls");
+            break;
+        default:
+            system("cls");
+            cout << "Error: Selecione una opcion valida" << endl;
+    }
+}
+
+/*
+Entradas: N/A
+Salidas: opción seleccionada por el usuario
+Funcionamiento: Imprime en pantalla un menú y le pide al usuario que seleccione una opción
+*/
+int pedirCantidadDeDigitos(){
+    int opcion;
+    while(true){
+        cout << "Ingrese la cantidad de digitos a calcular" << endl;
+        cout << "1) 1 digito" << endl;
+        cout << "2) 2 digitos" << endl;
+        cout << "3) 4 digitos" << endl;
+        cout << "4) 6 digitos" << endl;
+        cout << "5) 8 digitos" << endl;
+        cout << "6) 10 digitos" << endl;
+        cout << "7) Atras" << endl;
+        cin >> opcion;
+        if (opcion > 0 && opcion < 8){
+            break;
+        }else{
+            cout << "Error: Debe ingresar un número entre 1 y 7" << endl;
+        }
+    }
+    return opcion;
 }
