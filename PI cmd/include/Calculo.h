@@ -6,21 +6,21 @@
 #include <thread>
 #include <vector>
 #include <stdio.h>
+#include "Tiempo.h"
 
 
     class Calculo{
         public:
-
-            Calculo();   //Constructor
-            int calcular(long long int, int);   //Calcula PI en mononucleo
-            double getPI();  //Getter de "PI"
-            double getTiempo();  //Getter de "tiempo"
-
+            Calculo();
+            int calcular(int, int);
+            int calcular(long long int, int);
+            double getPI();
+            double getTiempo();
         private:
-
             int duracion(int);
-            double PI, tiempo, porcentaje;  //"PI" almacena PI    "tiempo" almacena el tiempo de ejecucion  "porcentaje" almacena el progreso del calculo
-
+            double PI, tiempo, porcentaje;
+            int mostrarPorcentaje(int, int, int, int);
+            int mostrarPorcentaje(int, long long int, long long int, int);
     };
 
 #endif // CALCULO_H
