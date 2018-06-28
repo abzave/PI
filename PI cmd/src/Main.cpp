@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void escribirResultados(int, int, double, double);
+void escribirResultados(unsigned short int, short int, float, float);
 void leerResultados();
 string obtenerUnidad(int);
 void opcionCalcular(int, Calculo);
@@ -48,7 +48,7 @@ Entradas: Digitos de tipo entero, codigo de tipo entero, tiempo de tipo double y
 Salidas: Escribe en el archivo los resultados del benchmark
 Funcionamiento: Escribe en el archivo output.txt y le da formato a los datos que se le pasan por parametro (los resultados del benchmark)
 */
-void escribirResultados(int digitos, int codigo, double tiempo, double resultado){
+void escribirResultados(unsigned short int digitos, short int codigo, float tiempo, float resultado){
 	ofstream archivo;
 	archivo.open("output.txt", fstream::in | fstream::app);
 	archivo << "DIGITOS: " << digitos << endl << endl;
@@ -101,27 +101,27 @@ void opcionCalcular(int opcion, Calculo calculador){
     switch(opcion){
     /*Los datos del parametro "sumatoria" son el minimo para obtener un resultado correcto*/
         case 1:     //Opcion 1 dígito
-            codigo = calculador.calcular(19, 1);
+            codigo = calculador.calcular(19U, 1);
             escribirResultados(1, codigo, calculador.getTiempo(), calculador.getPI());
             break;
         case 2:     //Opcion 2 dígito
-            codigo = calculador.calcular(293, 2);
+            codigo = calculador.calcular(293U, 2);
             escribirResultados(2, codigo, calculador.getTiempo(), calculador.getPI());
             break;
         case 3:     //Opcion 4 dígito
-            codigo = calculador.calcular(17375, 4);
+            codigo = calculador.calcular(17375U, 4);
             escribirResultados(4, codigo, calculador.getTiempo(), calculador.getPI());
             break;
         case 4:     //Opcion 6 dígito
-            codigo = calculador.calcular(20000004, 6);
+            codigo = calculador.calcular(20000004U, 6);
             escribirResultados(6, codigo, calculador.getTiempo(), calculador.getPI());
             break;
         case 5:     //Opcion 8 dígito
-            codigo = calculador.calcular(117000001, 8);
+            codigo = calculador.calcular(117000001U, 8);
             escribirResultados(8, codigo, calculador.getTiempo(), calculador.getPI());
             break;
         case 6:     //Opcion 10 dígito
-            codigo = calculador.calcular(16343000102LL, 10);
+            codigo = calculador.calcular(16343000102ULL, 10);
             escribirResultados(10, codigo, calculador.getTiempo(), calculador.getPI());
             break;
         case 7:     //Opcion volver

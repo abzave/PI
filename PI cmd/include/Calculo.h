@@ -12,15 +12,15 @@
     class Calculo{
         public:
             Calculo();
-            int calcular(int, int);
-            int calcular(long long int, int);
+            int calcular(unsigned int, unsigned short int);
+            int calcular(unsigned long long int, unsigned short int);
             double getPI();
             double getTiempo();
         private:
-            int duracion(int);
+            int duracion(unsigned short int);
             double PI, tiempo, porcentaje;
-            int mostrarPorcentaje(int, int, int, int);
-            int mostrarPorcentaje(int, long long int, long long int, int);
+            int mostrarPorcentaje(unsigned int, unsigned int, unsigned int, unsigned int);
+            int mostrarPorcentaje(unsigned int, unsigned long long int, unsigned long long int, unsigned int);
     };
 
 #endif // CALCULO_H

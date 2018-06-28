@@ -14,7 +14,7 @@ Entradas: Sumatoria y digitos de tipo entero
 Salidas: Imprime en pantalla el resultado del calculo y devuelve el código de la duración
 Funcionamiento: Calcula con la formula de Leibniz PI y calcula cuanto se duró en esta operación
 */
-int Calculo::calcular(int sumatoria, int digitos){
+int Calculo::calcular(unsigned int sumatoria,unsigned short int digitos){
     int segundos = 1;
     Tiempo temporizador;
     PI = 0;
@@ -37,7 +37,7 @@ Entradas: Sumatoria de tipo entero de 64 bits y digitos de tipo entero
 Salidas: Imprime en pantalla el resultado del calculo y devuelve el código de la duración
 Funcionamiento: Calcula con la formula de Leibniz PI y calcula cuanto se duró en esta operación
 */
-int Calculo::calcular(long long int sumatoria, int digitos){
+int Calculo::calcular(unsigned long long int sumatoria, unsigned short int digitos){
     int segundos = 1;
     PI = 0;
     Tiempo temporizador;
@@ -60,7 +60,7 @@ Entradas: digitos de tipo entero
 Salidas: Devuelve un código según el tiempo durado e imprime este tiempo
 Funcionamiento: Adapta el tiempo durado a la magnitud más cercana y lo imprime por pantalla
 */
-int Calculo::duracion(int digitos){
+int Calculo::duracion(unsigned short int digitos){
     if(tiempo < 0.000001){  //nanosegundos
         tiempo = tiempo * 1000000000;
         cout << fixed << setprecision(2) << tiempo << " nanosegundos a " << digitos << " digitos" << endl << endl;
@@ -94,7 +94,7 @@ Entradas: tiempo transcurrido, iteración, total y segundos de tipo entero
 Salidas: Imprime en panatalla el porcentaje del calculo con una barra de carga y devuelve segundos
 Funcionamiento: Cada segundo Imprime en pantalla en porcentaje con base a iteración y total que se lleva del calculo y devuelve los segundos
 */
-int Calculo::mostrarPorcentaje(int tiempoTranscurrido,int iteracion, int total, int segundos){
+int Calculo::mostrarPorcentaje(unsigned int tiempoTranscurrido, unsigned int iteracion, unsigned int total, unsigned int segundos){
     if(tiempoTranscurrido == segundos){
         porcentaje = ((double)iteracion / (double)total) * 100;
         system("cls");
@@ -112,7 +112,7 @@ Entradas: tiempo transcurrido y segundos de tipo entero y iteración y total de t
 Salidas: Imprime en panatalla el porcentaje del calculo con una barra de carga y devuelve segundos
 Funcionamiento: Cada segundo Imprime en pantalla en porcentaje con base a iteración y total que se lleva del calculo y devuelve los segundos
 */
-int Calculo::mostrarPorcentaje(int tiempoTranscurrido, long long int iteracion, long long int total, int segundos){
+int Calculo::mostrarPorcentaje(unsigned int tiempoTranscurrido, unsigned long long int iteracion, unsigned long long int total, unsigned int segundos){
     if(tiempoTranscurrido == segundos){
         porcentaje = ((double)iteracion / (double)total) * 100;
         system("cls");
